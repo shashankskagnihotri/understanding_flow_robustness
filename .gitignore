@@ -10,3 +10,9 @@ correlation.egg-info
 __pycache__
 poetry.lock
 .vscode
+icml_rebuttal
+*.zip
+*.tar
+*.png
+*.pth
+testing

@@ -62,7 +62,7 @@ parser.add_argument(
 parser.add_argument(
     "-j",
     "--workers",
-    default=128,
+    default=4,
     type=int,
     metavar="N",
     help="number of data loading workers",
@@ -177,7 +177,7 @@ def main():
     avg_error = 0.0
     args = parser.parse_args()
     save_path = (
-        Path(args.name) / "kitti2015" / args.flownet / f"ps_{int(args.patch_size*384)}"
+        Path(args.name) / "kitti2015" / "cospgd" / args.flownet / f"ps_{int(args.patch_size*384)}"
     )
 
     if args.l2:
@@ -406,6 +406,7 @@ def train(
             mask_var,
             patch_init_var,
             target_var=target_var,
+            flow_pred_var = flow_pred_var,
             logger=logger,
         )
 
@@ -533,6 +534,7 @@ def attack(
     mask_var,
     patch_init_var,
     target_var,
+    flow_pred_var,
     logger,
 ):
     global args  # pylint: disable=global-variable-not-assigned
@@ -574,6 +576,11 @@ def attack(
         )
         loss = (1 - args.alpha) * loss_data + args.alpha * loss_reg
 
+        #import ipdb;ipdb.set_trace()
+        cossim = nn.functional.cosine_similarity(adv_flow_out_var, target_var)
+        loss = (cossim * loss).mean()
+
+
         loss.backward()
 
         adv_tgt_img_grad = adv_tgt_img_var.grad.clone()
@@ -583,7 +590,7 @@ def attack(
         adv_ref_future_img_var.grad.data.zero_()
 
         patch_var -= torch.clamp(
-            0.5 * args.lr * (adv_tgt_img_grad + adv_ref_future_img_grad), -2, 2
+            0.5 * 5*args.lr * (adv_tgt_img_grad + adv_ref_future_img_grad), -2, 2
         )
 
         adv_tgt_img_var = torch.mul((1 - mask_var), tgt_img_var) + torch.mul(

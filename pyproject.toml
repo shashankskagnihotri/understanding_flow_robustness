@@ -6,7 +6,7 @@ authors = ["Simon Schrodi <schrodi@cs.uni-freiburg.de>"]
 license = "GNU"
 
 [tool.poetry.dependencies]
-python = "3.8"
+python = "3.8.5"
 gdown = "^4.4.0"
 einops = "^0.4.1"
 joblib = "^1.1.0"

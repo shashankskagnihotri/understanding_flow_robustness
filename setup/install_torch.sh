@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Installer for PyTorch:"
-echo "Which cuda version do you use [9.2, 10.0 (we used this), 10.1, cpu]?"
+echo "Which cuda version do you use [9.2, 10.0 (we used this), 10.1, 12.0, cpu]?"
 
 read version
 
@@ -19,6 +19,10 @@ elif [ $version == "10.1" ]
 then
     echo "Install PyTorch 1.4.0 for CUDA 10.1"
     conda install pytorch==1.4.0 torchvision==0.5.0 cudatoolkit=10.1 -c pytorch
+elif [ $version == "12.0" ]
+then
+    echo "Install PyTorch 2.0.0 for CUDA 11.8"
+    conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
 elif [ $version == "cpu" ]
 then
     echo "Install PyTorch 1.4.0 for cpu"

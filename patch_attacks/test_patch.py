@@ -99,7 +99,7 @@ parser.add_argument(
 parser.add_argument(
     "-j",
     "--workers",
-    default=4,
+    default=128,
     type=int,
     metavar="N",
     help="number of data loading workers",
@@ -127,7 +127,7 @@ parser.add_argument(
     help="use the true motion according to static scene if intrinsics and depth are available",
 )
 
-
+@torch.no_grad()
 def main():
     global args  # pylint: disable=global-variable-undefined
     args = parser.parse_args()
@@ -239,19 +239,28 @@ def main():
     # set seed for reproductivity
     np.random.seed(1337)
 
-    with torch.no_grad():
-        for (
-            i,
-            (
-                ref_img_past,
-                tgt_img,
-                ref_img,
-                flow_gt,
-                disp_gt,
-                calib,
-                poses,
-            ),
-        ) in enumerate(tqdm(val_loader)):
+    pbar = tqdm(enumerate(val_loader))
+    #with torch.no_grad():
+    i=-1
+    with tqdm(val_loader) as pbar:
+        """
+        for #(
+            #i,
+            #(
+            ref_img_past,
+            tgt_img,
+            ref_img,
+            flow_gt,
+            disp_gt,
+            calib,
+            poses,
+            #),
+        #) in enumerate(tqdm(val_loader)):
+        #) in pbar:        
+        in pbar:
+        """
+        for ref_img_past, tgt_img, ref_img, flow_gt, disp_gt, calib, poses in pbar:
+            i +=1
             if args.HOMOGENUOUS:
                 ref_img_past = torch.from_numpy(np.ones_like(ref_img_past)) * 0.5
                 tgt_img = torch.from_numpy(np.ones_like(tgt_img)) * 0.5
@@ -459,7 +468,10 @@ def main():
             # import pdb; pdb.set_trace()
             epe = compute_epe(gt=flow_gt_var, pred=flow_fwd)
             adv_epe = compute_epe(gt=flow_gt_var_adv, pred=adv_flow_fwd)
-            print(epe, adv_epe)
+            #print(epe, adv_epe)
+            #pbar.set_postfix(EPE = epe)
+            pbar.set_postfix(ADV_epe = adv_epe)
+            pbar.set_description("EPE: {}".format(adv_epe))
             cos_sim = compute_cossim(flow_gt_var, flow_fwd)
             adv_cos_sim = compute_cossim(flow_gt_var_adv, adv_flow_fwd)
 

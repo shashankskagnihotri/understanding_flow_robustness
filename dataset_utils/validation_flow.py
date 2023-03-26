@@ -137,6 +137,7 @@ class ValidationFlowKitti2015(data.Dataset):
     ):
         self.root = Path(root)
         self.start = max(0, min(example, N))
+        #self.start = max(1, min(example, N))
         if example > 0:
             self.N = 1
         else:
@@ -174,7 +175,8 @@ class ValidationFlowKitti2015(data.Dataset):
             self.phase, "image_2", str(index).zfill(6) + "_10.png"
         )
         ref_img_past_path = self.root.joinpath(
-            self.phase, "image_2", str(index).zfill(6) + "_09.png"
+            self.phase, "image_2", str(index).zfill(6) + "_11.png"
+            #self.phase, "image_2", str(index-1).zfill(6) + "_10.png"
         )
         ref_img_future_path = self.root.joinpath(
             self.phase, "image_2", str(index).zfill(6) + "_11.png"
